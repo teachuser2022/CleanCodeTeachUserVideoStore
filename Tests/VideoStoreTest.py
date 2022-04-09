@@ -9,27 +9,57 @@ class VideoStoreTest(unittest.TestCase):
     def setUp(self):
         print("Starting all the tests.")
         self.customer = Customer("Fred")
+        self.newReleaseMovie1 = Movie("New Release Movie 1", Movie.NEW_RELEASE)
+        self.newReleaseMovie2 = Movie("New Release Movie 2", Movie.NEW_RELEASE)
+        self.childrenMovie = Movie("Children Movie", Movie.CHILDRENS)
+        self.regularMovie1 = Movie("Regular Movie 1", Movie.REGULAR)
+        self.regularMovie2 = Movie("Regular Movie 2", Movie.REGULAR)
+        self.regularMovie3 = Movie("Regular Movie 3", Movie.REGULAR)
 
-    def test_00_testSingleNewReleaseStatement(self):
-        self.customer.addRental(Rental( Movie("The Cell", Movie.NEW_RELEASE), 3))
-        self.assertEqual("Rental Record for Fred\n\tThe Cell\t9.0\nYou owed 9.0\nYou earned 2 frequent renter points\n", self.customer.statement())
+    def test_0000_testSingleNewReleaseStatementTotals(self):
+        self.customer.addRental(Rental(self.newReleaseMovie1, 3))
 
-    def test_01_testDualNewReleaseStatement(self):
-        self.customer.addRental( Rental( Movie("The Cell", Movie.NEW_RELEASE), 3))
-        self.customer.addRental( Rental( Movie("The Tigger Movie", Movie.NEW_RELEASE), 3))
-        self.assertEqual("Rental Record for Fred\n\tThe Cell\t9.0\n\tThe Tigger Movie\t9.0\nYou owed 18.0\nYou earned 4 frequent renter points\n", self.customer.statement())
+        self.customer.statement()
+        self.assertEqual(9.0, self.customer.getTotal())
+        self.assertEqual(2, self.customer.getFrequentRenterPoints())
 
-    def test_10_testSingleChildrensStatement(self):
-        self.customer.addRental( Rental( Movie("The Tigger Movie", Movie.CHILDRENS), 3))
-        self.assertEqual("Rental Record for Fred\n\tThe Tigger Movie\t1.5\nYou owed 1.5\nYou earned 1 frequent renter points\n", self.customer.statement())
+    def test_0001_testDualNewReleaseStatementTotals(self):
+        self.customer.addRental(Rental(self.newReleaseMovie1, 3))
+        self.customer.addRental(Rental(self.newReleaseMovie2, 3))
+
+        self.customer.statement()
+        self.assertEqual(18.0, self.customer.getTotal())
+        self.assertEqual(4, self.customer.getFrequentRenterPoints())
+
+    def test_0010_testSingleChildrensStatementTotals(self):
+        self.customer.addRental(Rental(self.childrenMovie, 3))
 
 
-    def test_11_testMultipleRegularStatement(self):
-        self.customer.addRental( Rental( Movie("Plan 9 from Outer Space", Movie.REGULAR), 1))
-        self.customer.addRental( Rental( Movie("8 1/2", Movie.REGULAR), 2))
-        self.customer.addRental( Rental( Movie("Eraserhead", Movie.REGULAR), 3))
-        self.assertEqual("Rental Record for Fred\n\tPlan 9 from Outer Space\t2.0\n\t8 1/2\t2.0\n\tEraserhead\t3.5\nYou owed 7.5\nYou earned 3 frequent renter points\n", self.customer.statement())
+        self.customer.statement()
+        self.assertEqual(1.5, self.customer.getTotal())
+        self.assertEqual(1, self.customer.getFrequentRenterPoints())
 
+    def test_0100_testMultipleRegularStatementTotals(self):
+        self.customer.addRental(Rental(self.regularMovie1, 1))
+        self.customer.addRental(Rental(self.regularMovie2, 2))
+        self.customer.addRental(Rental(self.regularMovie3, 3))
+
+        self.customer.statement()
+        self.assertEqual(7.5, self.customer.getTotal())
+        self.assertEqual(3, self.customer.getFrequentRenterPoints())
+
+    def test_0101_testMultipleRegularStatementFormat(self):
+        self.customer.addRental(Rental(self.regularMovie1, 1))
+        self.customer.addRental(Rental(self.regularMovie2, 2))
+        self.customer.addRental(Rental(self.regularMovie3, 3))
+
+        self.assertEqual("Rental Record for Fred\n"
+                         "\tRegular Movie 1\t2.0\n"
+                         "\tRegular Movie 2\t2.0\n"
+                         "\tRegular Movie 3\t3.5\n"
+                         "You owed 7.5\n"
+                         "You earned 3 frequent renter points\n",
+                         self.customer.statement())
 
 if __name__ == '__main__':
     unittest.main()
